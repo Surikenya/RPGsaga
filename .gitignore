@@ -1,0 +1,10 @@
+node_modules/
+dist/
+coverage/
+*.log
+game_log.txt
+test_log.txt
+.DS_Store
+.vscode/
+.idea/
+
