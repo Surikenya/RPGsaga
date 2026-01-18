@@ -2,7 +2,7 @@ import { GameEngine } from './engine/GameEngine';
 import { EventRecorder } from './recording/EventRecorder';
 import * as readline from 'readline';
 
-// Main entry point for the game
+// вход в игру + логотип
 function getUserInput(question: string): Promise<string> {
   const rl = readline.createInterface({
     input: process.stdin,
@@ -19,7 +19,7 @@ function getUserInput(question: string): Promise<string> {
 
 async function main(): Promise<void> {
   console.log('═══════════════════════════════════════');
-  console.log('    🎮 Akvelon RPG SAGA 🎮');
+  console.log('                RPG SAGA                ');
   console.log('═══════════════════════════════════════\n');
 
   try {
