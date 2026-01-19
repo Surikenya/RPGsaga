@@ -1,6 +1,6 @@
 import { StatusEffect, StatusType, IStatusEffect } from '../status/StatusEffect';
 
-// Base class for all fighters in the game
+// Базовый класс для всех персов игры
 export abstract class BaseFighter {
   private _hp: number;
   private _maxHp: number;
@@ -16,7 +16,7 @@ export abstract class BaseFighter {
     this._damage = damage;
   }
 
-  // Getters
+  // Геттеры
   public get name(): string {
     return this._name;
   }
@@ -33,27 +33,26 @@ export abstract class BaseFighter {
     return this._damage;
   }
 
-  // Check if fighter is alive
+  // Проверка жив ли перс
   public isAlive(): boolean {
     return this._hp > 0;
   }
 
-  // Abstract methods - must be implemented by subclasses
   public abstract getClassType(): string;
   public abstract getAbilityName(): string;
   public abstract executeAbility(target: BaseFighter): number;
   public abstract canExecuteAbility(): boolean;
 
-  // Basic attack
+  // Обычная атака
   public performAttack(target: BaseFighter): number {
     const attackDamage = this._damage;
     target.sufferDamage(attackDamage);
     return attackDamage;
   }
 
-  // Receive damage
+  // Получение дамага
   public sufferDamage(amount: number): number {
-    // Check for stun effect (skip damage)
+    // Проверка на стан
     if (this.hasStatus(StatusType.STUN)) {
       this.removeStatus(StatusType.STUN);
       return 0;
@@ -64,9 +63,9 @@ export abstract class BaseFighter {
     return finalDamage;
   }
 
-  // Add status effect
+  // Добавление статуса, что перс под эффектом
   public applyStatus(effect: StatusEffect): void {
-    // Special handling for freeze effects (stacking)
+    // Настройка для эффекта фриза
     if (effect.statusType === StatusType.FREEZE) {
       const existingFreeze = this.statusEffects.find(e => e.statusType === StatusType.FREEZE && e.isActive);
       if (existingFreeze) {
@@ -79,12 +78,12 @@ export abstract class BaseFighter {
     this.statusEffects.push(effect);
   }
 
-  // Check if fighter has specific status
+  // Проверка на необычный статус
   public hasStatus(statusType: StatusType): boolean {
     return this.statusEffects.some(e => e.statusType === statusType && e.isActive);
   }
 
-  // Remove status effect
+  // Убрать стат эффекта
   public removeStatus(statusType: StatusType): void {
     const index = this.statusEffects.findIndex(e => e.statusType === statusType && e.isActive);
     if (index !== -1) {
@@ -93,13 +92,13 @@ export abstract class BaseFighter {
     }
   }
 
-  // Remove all status effects
+  // Убрать все статы эффекта
   public clearAllStatuses(): void {
     this.statusEffects.forEach(e => e.deactivate());
     this.statusEffects = [];
   }
 
-  // Process status effects at turn start
+  // Обработка стата эффекта на старте
   public processStatusEffects(): number {
     let accumulatedDamage = 0;
     
@@ -116,10 +115,10 @@ export abstract class BaseFighter {
       }
     }
 
-    // Remove inactive effects
+    // Убрать неактивные статы
     this.statusEffects = this.statusEffects.filter(e => e.isActive);
 
-    // Apply accumulated damage
+    // Применение урона
     if (accumulatedDamage > 0) {
       this._hp = Math.max(0, this._hp - accumulatedDamage);
     }
@@ -127,17 +126,17 @@ export abstract class BaseFighter {
     return accumulatedDamage;
   }
 
-  // Restore health
+  // Обновление здоровья
   public restoreHealth(amount: number): void {
     this._hp = Math.min(this._maxHp, this._hp + amount);
   }
 
-  // Get fighter info string
+  // Инфа по бойцу
   public getInfo(): string {
     return `(${this.getClassType()}) ${this.name}`;
   }
 
-  // Reset fighter state for new battle
+  // Обнуление статов бойца перед новой битвой
   public resetForNewBattle(): void {
     this.statusEffects = [];
   }
