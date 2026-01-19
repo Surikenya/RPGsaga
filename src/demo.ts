@@ -4,7 +4,7 @@ import { EventRecorder } from './recording/EventRecorder';
 // Demo mode - automated tournament
 function runDemo(): void {
   console.log('═══════════════════════════════════════');
-  console.log('    🎮 Akvelon RPG SAGA - DEMO 🎮');
+  console.log('    RPG SAGA - DEMO');
   console.log('═══════════════════════════════════════\n');
 
   const recorder = new EventRecorder(false);
@@ -21,10 +21,10 @@ function runDemo(): void {
 
     const winner = engine.runTournament();
 
-    console.log(`\n🎉 Турнир завершен!`);
-    console.log(`🏆 Победитель: ${winner.getInfo()}`);
-    console.log(`❤️  Здоровье победителя: ${winner.health}/${winner.maxHealth}`);
-    console.log(`⚔️  Сила победителя: ${winner.strength}`);
+    console.log(`\nТурнир завершен!`);
+    console.log(`Победитель: ${winner.getInfo()}`);
+    console.log(`Здоровье победителя: ${winner.health}/${winner.maxHealth}`);
+    console.log(`Сила победителя: ${winner.strength}`);
 
   } catch (error) {
     console.error('Произошла ошибка:', error instanceof Error ? error.message : error);
