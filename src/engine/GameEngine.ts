@@ -1,9 +1,9 @@
 import { BaseFighter } from '../fighters/BaseFighter';
-import { FighterGenerator, FighterType } from '../generators/FighterGenerator';
+import { FighterGenerator} from '../generators/FighterGenerator';
 import { EventRecorder } from '../recording/EventRecorder';
 import { StatusType } from '../status/StatusEffect';
 
-// Game engine - manages tournament flow
+// Сам движок, запускает турнир
 export class GameEngine {
   private fighters: BaseFighter[] = [];
   private readonly recorder: EventRecorder;
