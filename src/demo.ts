@@ -1,7 +1,6 @@
 import { GameEngine } from './engine/GameEngine';
 import { EventRecorder } from './recording/EventRecorder';
 
-// Demo mode - automated tournament
 function runDemo(): void {
   console.log('═══════════════════════════════════════');
   console.log('    RPG SAGA - DEMO');
