@@ -1,4 +1,4 @@
-import { StatusEffect, StatusType} from '../status/StatusEffect';
+import { StatusEffect, StatusType } from '../status/StatusEffect';
 
 // Базовый класс для всех персов игры
 export abstract class BaseFighter {
@@ -6,8 +6,9 @@ export abstract class BaseFighter {
   private _maxHp: number;
   private _damage: number;
   private _name: string;
-  
+
   protected statusEffects: StatusEffect[] = [];
+  private iceArrowsUsedCount: number = 0;
 
   constructor(name: string, hp: number, damage: number) {
     this._name = name;
@@ -52,31 +53,54 @@ export abstract class BaseFighter {
 
   // Получение дамага
   public sufferDamage(amount: number): number {
-    // Проверка на стан
-    if (this.hasStatus(StatusType.STUN)) {
-      this.removeStatus(StatusType.STUN);
-      return 0;
-    }
-
     const finalDamage = Math.max(0, amount);
     this._hp = Math.max(0, this._hp - finalDamage);
     return finalDamage;
   }
 
+  //Лимит ледяных стрел на бой
+  protected get maxIceArrowsPerBattle(): number {
+    return 1;
+  }
+
+  //Можно ли использовать ледяные стрелы сейчас
+  public canUseIceArrows(): boolean {
+    return this.iceArrowsUsedCount < this.maxIceArrowsPerBattle;
+  }
+
+  // Использование ледяных стрел:
+  public useIceArrows(target: BaseFighter): number {
+    if (!this.canUseIceArrows()) {
+      return this.performAttack(target);
+    }
+
+    this.iceArrowsUsedCount++;
+
+    const directDamage = this.strength;
+    target.sufferDamage(directDamage);
+
+    const extraDamagePerTurn = 2;
+
+    const freezeEffect = new StatusEffect(StatusType.FREEZE, 3, extraDamagePerTurn);
+    target.applyStatus(freezeEffect);
+
+    return directDamage;
+  }
+
   // Добавление статуса, что перс под эффектом
   public applyStatus(effect: StatusEffect): void {
-    // Настройка для эффекта фриза
     if (effect.statusType === StatusType.FREEZE) {
       const existingFreeze = this.statusEffects.find(function (e) {
-      return e.statusType === StatusType.FREEZE && e.isActive;
-    });
+        return e.statusType === StatusType.FREEZE && e.isActive;
+      });
+
       if (existingFreeze) {
         existingFreeze.incrementDamage(effect.damagePerTurn);
         existingFreeze.setMaximumDuration(effect.remainingTurns);
         return;
       }
     }
-    
+
     this.statusEffects.push(effect);
   }
 
@@ -92,6 +116,7 @@ export abstract class BaseFighter {
     const index = this.statusEffects.findIndex(function (e) {
       return e.statusType === statusType && e.isActive;
     });
+
     if (index !== -1) {
       this.statusEffects[index].deactivate();
       this.statusEffects.splice(index, 1);
@@ -109,26 +134,28 @@ export abstract class BaseFighter {
   // Обработка стата эффекта на старте
   public processStatusEffects(): number {
     let accumulatedDamage = 0;
-    
+
     for (const effect of this.statusEffects) {
       if (effect.isActive) {
+        if (effect.statusType === StatusType.STUN) {
+          continue;
+        }
+
         const effectDamage = effect.calculateDamage();
         accumulatedDamage += effectDamage;
-        
+
         effect.decrementTurns();
-        
+
         if (effect.remainingTurns <= 0) {
           effect.deactivate();
         }
       }
     }
 
-    // Убрать неактивные статы
     this.statusEffects = this.statusEffects.filter(function (e) {
       return e.isActive;
     });
 
-    // Применение урона
     if (accumulatedDamage > 0) {
       this._hp = Math.max(0, this._hp - accumulatedDamage);
     }
@@ -149,6 +176,6 @@ export abstract class BaseFighter {
   // Обнуление статов бойца перед новой битвой
   public resetForNewBattle(): void {
     this.statusEffects = [];
+    this.iceArrowsUsedCount = 0;
   }
 }
-

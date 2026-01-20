@@ -1,17 +1,18 @@
 import { BaseFighter } from '../fighters/BaseFighter';
-import { FighterGenerator} from '../generators/FighterGenerator';
+import { FighterGenerator } from '../generators/FighterGenerator';
 import { EventRecorder } from '../recording/EventRecorder';
 import { StatusType } from '../status/StatusEffect';
 
-// Сам движок, запускает турнир
+// Game engine - manages tournament flow
 export class GameEngine {
   private fighters: BaseFighter[] = [];
   private readonly recorder: EventRecorder;
   private roundIndex: number = 0;
   private readonly abilityProbability: number = 0.5;
-  private readonly rng: () => number;
 
-  constructor(recorder: EventRecorder, rng: () => number = Math.random) {
+  private readonly rng: { (): number };
+
+  constructor(recorder: EventRecorder, rng: { (): number } = Math.random) {
     this.recorder = recorder;
     this.rng = rng;
   }
@@ -26,7 +27,7 @@ export class GameEngine {
     }
 
     this.fighters = FighterGenerator.generateRandomFighters(fighterCount, this.rng);
-    
+
     this.recorder.record(`Игра началась! Создано ${fighterCount} персонажей.`);
   }
 
@@ -41,9 +42,13 @@ export class GameEngine {
 
       this.processRound();
 
-      this.fighters = this.fighters.filter(f => f.isAlive());
+      this.fighters = this.fighters.filter(function (f) {
+        return f.isAlive();
+      });
 
-      this.fighters.forEach(f => f.resetForNewBattle());
+      this.fighters.forEach(function (f) {
+        f.resetForNewBattle();
+      });
     }
 
     const champion = this.fighters[0];
@@ -60,7 +65,9 @@ export class GameEngine {
       battlePairs.push([mixedFighters[i], mixedFighters[i + 1]]);
     }
 
-    for (const [fighter1, fighter2] of battlePairs) {
+    for (const pair of battlePairs) {
+      const fighter1 = pair[0];
+      const fighter2 = pair[1];
       this.runBattle(fighter1, fighter2);
     }
   }
@@ -80,17 +87,53 @@ export class GameEngine {
       }
 
       if (!activeFighter.isAlive()) {
-        [activeFighter, passiveFighter] = [passiveFighter, activeFighter];
+        const tmp = activeFighter;
+        activeFighter = passiveFighter;
+        passiveFighter = tmp;
         continue;
       }
 
-      const shouldUseSpecial = this.checkAbilityUsage(activeFighter);
+      // STUN ("Заворожение") makes the fighter skip their next turn.
+      if (activeFighter.hasStatus(StatusType.STUN)) {
+        activeFighter.removeStatus(StatusType.STUN);
+        this.recorder.recordSkipTurn(activeFighter, 'заворожение');
+
+        const tmp2 = activeFighter;
+        activeFighter = passiveFighter;
+        passiveFighter = tmp2;
+
+        continue;
+      }
+
+      const wantsSpecial = this.rng() < this.abilityProbability;
+
+      const canClassAbility = activeFighter.canExecuteAbility();
+      const canIceArrows = activeFighter.canUseIceArrows();
 
       let damageOutput: number;
 
-      if (shouldUseSpecial && activeFighter.canExecuteAbility()) {
-        damageOutput = activeFighter.executeAbility(passiveFighter);
-        this.recorder.recordAbility(activeFighter, passiveFighter, damageOutput);
+      if (wantsSpecial && (canClassAbility || canIceArrows)) {
+        // If both specials are available - pick one randomly.
+        const useClassAbility = canClassAbility && (!canIceArrows || this.rng() < 0.5);
+
+        if (useClassAbility) {
+          damageOutput = activeFighter.executeAbility(passiveFighter);
+          this.recorder.recordAbility(activeFighter, passiveFighter, damageOutput);
+        } else {
+          damageOutput = activeFighter.useIceArrows(passiveFighter);
+          this.recorder.recordAbility(
+            {
+              getInfo: function () {
+                return activeFighter.getInfo();
+              },
+              getAbilityName: function () {
+                return 'Ледяные стрелы';
+              }
+            },
+            passiveFighter,
+            damageOutput
+          );
+        }
       } else {
         damageOutput = activeFighter.performAttack(passiveFighter);
         this.recorder.recordAttack(activeFighter, passiveFighter, damageOutput);
@@ -101,24 +144,18 @@ export class GameEngine {
         break;
       }
 
-      [activeFighter, passiveFighter] = [passiveFighter, activeFighter];
+      const tmp3 = activeFighter;
+      activeFighter = passiveFighter;
+      passiveFighter = tmp3;
     }
 
     const winner = fighter1.isAlive() ? fighter1 : fighter2;
     this.recorder.recordVictory(winner, this.roundIndex);
   }
 
-  private checkAbilityUsage(fighter: BaseFighter): boolean {
-    if (!fighter.canExecuteAbility()) {
-      return false;
-    }
-
-    return this.rng() < this.abilityProbability;
-  }
-
   private handleStatusEffects(fighter: BaseFighter): void {
     const statusDamage = fighter.processStatusEffects();
-    
+
     if (statusDamage > 0) {
       let effectText = '';
       if (fighter.hasStatus(StatusType.BURN)) {
@@ -141,17 +178,20 @@ export class GameEngine {
     const result = [...arr];
     for (let i = result.length - 1; i > 0; i--) {
       const j = Math.floor(this.rng() * (i + 1));
-      [result[i], result[j]] = [result[j], result[i]];
+      const tmp = result[i];
+      result[i] = result[j];
+      result[j] = tmp;
     }
     return result;
   }
 
   public getAliveCount(): number {
-    return this.fighters.filter(f => f.isAlive()).length;
+    return this.fighters.filter(function (f) {
+      return f.isAlive();
+    }).length;
   }
 
   public getCurrentRound(): number {
     return this.roundIndex;
   }
 }
-
