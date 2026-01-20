@@ -1,4 +1,4 @@
-import { StatusEffect, StatusType, IStatusEffect } from '../status/StatusEffect';
+import { StatusEffect, StatusType} from '../status/StatusEffect';
 
 // Базовый класс для всех персов игры
 export abstract class BaseFighter {
@@ -67,7 +67,9 @@ export abstract class BaseFighter {
   public applyStatus(effect: StatusEffect): void {
     // Настройка для эффекта фриза
     if (effect.statusType === StatusType.FREEZE) {
-      const existingFreeze = this.statusEffects.find(e => e.statusType === StatusType.FREEZE && e.isActive);
+      const existingFreeze = this.statusEffects.find(function (e) {
+      return e.statusType === StatusType.FREEZE && e.isActive;
+    });
       if (existingFreeze) {
         existingFreeze.incrementDamage(effect.damagePerTurn);
         existingFreeze.setMaximumDuration(effect.remainingTurns);
@@ -80,12 +82,16 @@ export abstract class BaseFighter {
 
   // Проверка на необычный статус
   public hasStatus(statusType: StatusType): boolean {
-    return this.statusEffects.some(e => e.statusType === statusType && e.isActive);
+    return this.statusEffects.some(function (e) {
+      return e.statusType === statusType && e.isActive;
+    });
   }
 
   // Убрать стат эффекта
   public removeStatus(statusType: StatusType): void {
-    const index = this.statusEffects.findIndex(e => e.statusType === statusType && e.isActive);
+    const index = this.statusEffects.findIndex(function (e) {
+      return e.statusType === statusType && e.isActive;
+    });
     if (index !== -1) {
       this.statusEffects[index].deactivate();
       this.statusEffects.splice(index, 1);
@@ -94,7 +100,9 @@ export abstract class BaseFighter {
 
   // Убрать все статы эффекта
   public clearAllStatuses(): void {
-    this.statusEffects.forEach(e => e.deactivate());
+    this.statusEffects.forEach(function (e) {
+      e.deactivate();
+    });
     this.statusEffects = [];
   }
 
@@ -116,7 +124,9 @@ export abstract class BaseFighter {
     }
 
     // Убрать неактивные статы
-    this.statusEffects = this.statusEffects.filter(e => e.isActive);
+    this.statusEffects = this.statusEffects.filter(function (e) {
+      return e.isActive;
+    });
 
     // Применение урона
     if (accumulatedDamage > 0) {
