@@ -3,21 +3,21 @@ import { Paladin } from '../fighters/Paladin';
 import { Ranger } from '../fighters/Ranger';
 import { Sorcerer } from '../fighters/Sorcerer';
 
-// Fighter types
+// Типы бойцов
 export enum FighterType {
   PALADIN = 'PALADIN',
   RANGER = 'RANGER',
   SORCERER = 'SORCERER'
 }
 
-// Fighter parameters
+// Параметры бойцов
 export interface FighterParams {
   name: string;
   health: number;
   strength: number;
 }
 
-// Generator for creating fighters
+// Генератор для создания 
 export class FighterGenerator {
   private static readonly NAME_LIST: string[] = [
     'Артур', 'Вильямс', 'Ланселот', 'Гавейн', 'Галахад', 'Персиваль',

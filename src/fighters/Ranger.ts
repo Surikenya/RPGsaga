@@ -1,7 +1,7 @@
 import { BaseFighter } from './BaseFighter';
 import { StatusEffect, StatusType } from '../status/StatusEffect';
 
-// Ranger class - uses fire and ice arrows
+// Класс ЛУЧНИК
 export class Ranger extends BaseFighter {
   private fireArrowsUsed: boolean = false;
   private iceArrowsCount: number = 0;

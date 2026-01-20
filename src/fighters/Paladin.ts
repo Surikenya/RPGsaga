@@ -1,6 +1,6 @@
 import { BaseFighter } from './BaseFighter';
 
-// Paladin class - uses retribution strike
+// Класс РЫЦАРЬ
 export class Paladin extends BaseFighter {
   private abilityExecuted: boolean = false;
 

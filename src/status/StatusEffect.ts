@@ -1,12 +1,11 @@
-// Status effect types
+// Перечисление типов эффектов
 export enum StatusType {
-  BURN = 'BURN',              // Fire damage (2 per turn)
-  FREEZE = 'FREEZE',          // Ice damage (damage over multiple turns)
-  STUN = 'STUN',              // Skip turn (stun effect)
-  RETALIATION = 'RETALIATION' // Retaliation strike (bonus damage)
+  BURN = 'BURN',              // Поджог (2 за ход)
+  FREEZE = 'FREEZE',          // Лед (урон за умножение)
+  STUN = 'STUN',              // пропуск хода (стан)
+  RETALIATION = 'RETALIATION' // удар возмездия (удар идет бонусом)
 }
 
-// Status effect interface
 export interface IStatusEffect {
   statusType: StatusType;
   remainingTurns: number;
@@ -14,7 +13,6 @@ export interface IStatusEffect {
   isActive: boolean;
 }
 
-// Status effect implementation
 export class StatusEffect {
   private _remainingTurns: number;
   private _damagePerTurn: number;
@@ -43,27 +41,27 @@ export class StatusEffect {
     return this._isActive;
   }
 
-  // Increase damage per turn (for stacking effects)
+  // Урон стакается
   public incrementDamage(amount: number): void {
     this._damagePerTurn += amount;
   }
 
-  // Set maximum duration (for stacking effects)
+  // Установить длительность (для тех, что стакаются)
   public setMaximumDuration(turns: number): void {
     this._remainingTurns = Math.max(this._remainingTurns, turns);
   }
 
-  // Decrease duration by 1
+  // Уменьшение длительности
   public decrementTurns(): void {
     this._remainingTurns -= 1;
   }
 
-  // Deactivate effect
+  // Отключение
   public deactivate(): void {
     this._isActive = false;
   }
 
-  // Check if effect is still active
+  // Проверка на включенность
   public isStillActive(): boolean {
     if (this._remainingTurns > 0) {
       return true;
@@ -72,7 +70,7 @@ export class StatusEffect {
     return false;
   }
 
-  // Calculate and return damage for this turn
+  // Подсчет урона
   public calculateDamage(): number {
     if (!this._isActive || this._remainingTurns <= 0) {
       return 0;
@@ -80,7 +78,7 @@ export class StatusEffect {
     return this._damagePerTurn || 0;
   }
 
-  // Create a copy of this effect
+  // Копировать эффект, но создать новый его обьект
   public duplicate(): StatusEffect {
     return new StatusEffect(this.statusType, this._remainingTurns, this._damagePerTurn, this._isActive);
   }

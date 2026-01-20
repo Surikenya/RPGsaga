@@ -1,7 +1,7 @@
 import { BaseFighter } from './BaseFighter';
 import { StatusEffect, StatusType } from '../status/StatusEffect';
 
-// Sorcerer class - uses charm and is immune to ice
+// Класс МАГ. Не чувствует лед
 export class Sorcerer extends BaseFighter {
   private readonly iceImmunity: boolean = true;
 

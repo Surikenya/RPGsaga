@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Event recorder for game events
+// Запись событий
 export class EventRecorder {
   private events: string[] = [];
   private readonly saveToFile: boolean;
@@ -96,7 +96,7 @@ export class EventRecorder {
 
   public recordFinalVictory(fighter: { getInfo(): string }): void {
     this.record(`\n═══════════════════════════════════════`);
-    this.record(`🏆 ${fighter.getInfo()} становится Победителем турнира! 🏆`);
+    this.record(`${fighter.getInfo()} становится Победителем турнира!`);
     this.record(`═══════════════════════════════════════\n`);
   }
 
