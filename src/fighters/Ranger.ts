@@ -1,11 +1,9 @@
 import { BaseFighter } from './BaseFighter';
 import { StatusEffect, StatusType } from '../status/StatusEffect';
 
-// Ranger class - uses fire arrows
 export class Ranger extends BaseFighter {
   private fireArrowsUsed: boolean = false;
 
-  // Ranger can use the shared "ice arrows" ability twice per battle.
   protected get maxIceArrowsPerBattle(): number {
     return 2;
   }

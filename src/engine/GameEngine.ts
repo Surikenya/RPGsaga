@@ -3,7 +3,6 @@ import { FighterGenerator } from '../generators/FighterGenerator';
 import { EventRecorder } from '../recording/EventRecorder';
 import { StatusType } from '../status/StatusEffect';
 
-// Game engine - manages tournament flow
 export class GameEngine {
   private fighters: BaseFighter[] = [];
   private readonly recorder: EventRecorder;
@@ -93,7 +92,6 @@ export class GameEngine {
         continue;
       }
 
-      // STUN ("Заворожение") makes the fighter skip their next turn.
       if (activeFighter.hasStatus(StatusType.STUN)) {
         activeFighter.removeStatus(StatusType.STUN);
         this.recorder.recordSkipTurn(activeFighter, 'заворожение');
@@ -113,7 +111,6 @@ export class GameEngine {
       let damageOutput: number;
 
       if (wantsSpecial && (canClassAbility || canIceArrows)) {
-        // If both specials are available - pick one randomly.
         const useClassAbility = canClassAbility && (!canIceArrows || this.rng() < 0.5);
 
         if (useClassAbility) {
